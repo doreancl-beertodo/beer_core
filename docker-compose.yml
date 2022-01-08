@@ -29,8 +29,3 @@ services:
     depends_on:
       - web
       - rabbitmq
-      - redis
-  redis:
-    image: redis:alpine
-    ports:
-      - "6399:6379"
