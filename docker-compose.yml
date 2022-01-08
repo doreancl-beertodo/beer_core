@@ -3,8 +3,34 @@ version: "3.9"
 services:
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      bash -c "
+      ls
+      && pip install -r requirements.txt
+      && python manage.py runserver 0.0.0.0:8080
+      "
+#        python manage.py runserver 0.0.0.0:8080
     volumes:
       - .:/code
     ports:
-      - "8000:8000"
+      - "8080:8080"
+  rabbitmq:
+    image: rabbitmq:management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+  celery:
+    restart: always
+    build:
+      context: .
+    command: celery -A composeexample worker -l info
+    volumes:
+      - .:/code
+    depends_on:
+      - web
+      - rabbitmq
+      - redis
+  redis:
+    image: redis:alpine
+    ports:
+      - "6399:6379"
