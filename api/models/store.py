@@ -2,18 +2,17 @@ from django.db import models
 from sorl.thumbnail import ImageField
 
 from storescraper.storescraper.utils import get_store_class_by_name
-from .country import Country
-from .store_type import StoreType
+# from .country import Country
 from ..utils import iterable_to_dict
 
 
 class Store(models.Model):
     name = models.CharField(max_length=255, db_index=True, unique=True, null=True)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    # country = models.ForeignKey(Country, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     storescraper_class = models.CharField(max_length=255, db_index=True, null=True)
     storescraper_extra_args = models.CharField(max_length=255, null=True, blank=True)
-    type = models.ForeignKey(StoreType, on_delete=models.CASCADE)
+    # type = models.ForeignKey(StoreType, on_delete=models.CASCADE)
     logo = ImageField(upload_to='store_logos', default='default.jpg')
 
     scraper = property(
@@ -47,6 +46,8 @@ class Store(models.Model):
     def update_with_scraped_products(self, categories, scraped_products,
                                      discovery_urls_without_products,
                                      update_log=None):
+        from api.models import Entity
+
         print(categories, scraped_products,
               discovery_urls_without_products,
               update_log)
@@ -56,4 +57,9 @@ class Store(models.Model):
         for scraped_product in scraped_products_dict.values():
             print(scraped_product)
 
-
+            Entity.create_from_scraped_product(
+                scraped_product,
+                self,
+                #categories_dict[scraped_product.category],
+                #currencies_dict[scraped_product.currency],
+            )
